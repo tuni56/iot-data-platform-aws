@@ -1,45 +1,164 @@
-ADR-002 – Telemetry Frequency
-Status
+# ADR-002 – Telemetry Frequency Strategy
+
+## Status
 
 Accepted
 
-Context
+---
 
-The platform is intended to monitor distributed industrial pumps operating in remote environments.
+## Context
 
-Telemetry frequency directly impacts:
+The company manufactures and supports centrifugal pumps used across agricultural, industrial, water transfer, and fire protection applications throughout Latin America.
 
-Data volume
-Storage costs
-Query performance
-Infrastructure requirements
-Decision
+Different pump categories operate under different business and operational requirements.
 
-Each pump will publish telemetry every minute.
+A single telemetry frequency would either:
 
-Rationale
+* Generate unnecessary operational costs
+* Fail to capture critical events when equipment is operating under emergency conditions
 
-One-minute intervals provide sufficient operational visibility for:
+Telemetry collection must therefore be aligned with equipment criticality and operational behavior.
 
-Asset monitoring
-Trend analysis
-Anomaly detection
-Performance reporting
+---
 
-while maintaining reasonable storage and processing costs.
+## Decision
 
-The selected interval aligns with the monitoring requirements of irrigation systems, water transfer operations, and mobile pumping units.
+Telemetry frequency will vary according to pump type and operating scenario.
 
-Consequences
+---
 
-Expected production scale:
+## RS 5x5 Irrigation Pumps
 
-5,000 pumps
-7.2 million events/day
+Typical use:
 
-Demo scale:
+* Agricultural irrigation
+* Water distribution in rural environments
 
-500 pumps
-720,000 events/day
+Telemetry frequency:
 
-The architecture remains capable of supporting higher frequencies if required in future phases.
+```text
+Every 30 minutes
+```
+
+Collected variables:
+
+* Flow rate (m³/h)
+* Pressure
+* Motor temperature
+* Vibration
+* Operational status
+
+### Rationale
+
+Irrigation systems typically operate under stable conditions for extended periods.
+
+Capturing telemetry every 30 minutes provides sufficient operational visibility while minimizing infrastructure and storage costs.
+
+---
+
+## AC 44 Transfer and Water Supply Pumps
+
+Typical use:
+
+* Water transfer
+* Reservoir filling
+* Livestock watering systems
+* Rural water distribution
+
+Telemetry frequency:
+
+```text
+Every 30 minutes
+```
+
+Collected variables:
+
+* Flow rate
+* Total dynamic head
+* Temperature
+* Vibration
+* Operational status
+
+### Rationale
+
+These pumps generally operate continuously with predictable workloads.
+
+Thirty-minute telemetry intervals provide adequate monitoring while maintaining cost efficiency.
+
+---
+
+## AC 66 Fire Protection Pumps
+
+Typical use:
+
+* Fire protection systems
+* Emergency pumping equipment
+* Mobile firefighting units
+
+### Standby Mode
+
+Telemetry frequency:
+
+```text
+Once every 24 hours
+```
+
+Purpose:
+
+* Verify equipment availability
+* Confirm operational readiness
+
+### Active Emergency Mode
+
+Telemetry frequency:
+
+```text
+Every minute
+```
+
+Collected variables:
+
+* RPM
+* Flow rate
+* Pressure
+* Temperature
+* Vibration
+
+### Rationale
+
+During a fire event, equipment performance becomes mission critical.
+
+The prestaciones del equipo must remain within design specifications throughout the emergency operation.
+
+High-frequency telemetry allows operators to identify performance degradation, overheating, excessive vibration, or pressure loss while the equipment is actively protecting people, infrastructure, and assets.
+
+---
+
+## Consequences
+
+### Benefits
+
+* Telemetry aligned with business needs
+* Lower operational costs
+* Reduced storage consumption
+* Improved focus on critical assets
+* Better operational efficiency
+
+### Trade-offs
+
+* Different monitoring policies per asset type
+* More complex telemetry management logic
+
+---
+
+## Future Considerations
+
+Future versions may support dynamic telemetry frequencies based on:
+
+* Operating conditions
+* Environmental factors
+* Equipment health indicators
+* Predictive maintenance models
+
+This approach would allow the platform to increase telemetry frequency automatically when abnormal behavior is detected.
+
